@@ -133,7 +133,7 @@
         axios.get('https://api.kawalcorona.com/indonesia/', 
         {headers: {"x-dsi-restful":1}}).then((res) => {
             localData(res.data);
-            console.log(res.data);
+            //console.log(res.data);
         })
         .catch((err) => {
             console.log(err);
@@ -149,10 +149,10 @@
 
     // Mengisi data ke class yang sudah di sediakan
     let indoData = (data) => {
-        //$('.jml_konfirmasi').html(data.TotalConfirmed)
-        //$('.jml_meninggal').html(data.TotalDeaths)
-        //$('.jml_sembuh').html(data.TotalRecovered)
-        //$('.jml_dirawat').html(data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths)
+        $('.jml_konfirmasi').html(data.TotalConfirmed)
+        $('.jml_meninggal').html(data.TotalDeaths)
+        $('.jml_sembuh').html(data.TotalRecovered)
+        $('.jml_dirawat').html(data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths)
         //$('.new_konfirmasi').html(`+${data.NewConfirmed} Kasus`)
         //$('.persen_meninggal').html(`${(data.TotalDeaths / data.TotalConfirmed * 100).toFixed(2)}%`)
         //$('.persen_sembuh').html(`${(data.TotalRecovered / data.TotalConfirmed * 100).toFixed(2)}%`)
