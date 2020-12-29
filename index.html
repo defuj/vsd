@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Access-Control-Allow-Origin" content="*">
+  <meta http-equiv="Access-Control-Allow-Headers" content="Authorization, Content-Type">
+  <meta http-equiv="content-type" content="application/json">
+
+  <title>Visualisasi Data | UAS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+  
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition layout-top-nav">
+<div class="wrapper">
+
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container">
+        <div class="row mb-2">
+          <div class="col-sm-12">
+            <h1>Corona Virus Indonesia</h1>
+            <h5>Informasi Seputar Corona Virus di Indonesia</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3 class="jml_konfirmasi">0</h3>
+
+                <p>Terkonfirmasi</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3 class="jml_sembuh">0</h3>
+
+                <p>Sembuh</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3 class="jml_dirawat">0</h3>
+
+                <p>Dirawat</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3 class="jml_meninggal">0</h3>
+
+                <p>Meninggal</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2020 <a href="http://adminlte.io">Dede Fuji Abdul</a>.</strong>
+    <div class="float-right d-none d-sm-inline-block">
+      <b>A2.1700029</b>
+    </div>
+  </footer>
+</div>
+
+<script src="plugins/jquery/jquery.min.js"></script>
+<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<script>
+  $.widget.bridge('uibutton', $.ui.button);
+</script>
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="dist/js/adminlte.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<script type="text/javascript">
+    // Mengambil data dari API
+    function getData() {
+        axios.get('https://api.covid19api.com/summary').then((res) => {
+            indoData(res.data.Countries.find(e => e.Country === "Indonesia"));
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+        axios.get('http://api.kawalcorona.com/indonesia/', 
+        {headers: {"x-dsi-restful":1}}).then((res) => {
+            localData(res.data);
+            console.log(res.data);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+
+    let localData = (data) =>{
+        $('.jml_konfirmasi').html(data.positif)
+        $('.jml_meninggal').html(data.meninggal)
+        $('.jml_sembuh').html(data.sembuh)
+        $('.jml_dirawat').html(data.dirawat)
+    }
+
+    // Mengisi data ke class yang sudah di sediakan
+    let indoData = (data) => {
+        //$('.jml_konfirmasi').html(data.TotalConfirmed)
+        //$('.jml_meninggal').html(data.TotalDeaths)
+        //$('.jml_sembuh').html(data.TotalRecovered)
+        //$('.jml_dirawat').html(data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths)
+        //$('.new_konfirmasi').html(`+${data.NewConfirmed} Kasus`)
+        //$('.persen_meninggal').html(`${(data.TotalDeaths / data.TotalConfirmed * 100).toFixed(2)}%`)
+        //$('.persen_sembuh').html(`${(data.TotalRecovered / data.TotalConfirmed * 100).toFixed(2)}%`)
+        //$('.persen_dirawat').html(`${((data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths) / data.TotalConfirmed * 100).toFixed(2)}%`)
+    }
+
+    // Memanggil function getData() ketika window load
+    window.onload = () => {
+      getData();
+    }
+
+  </script>
+</body>
+</html>

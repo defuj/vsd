@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+
+  <title>Hello, world!</title>
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+  <div class="bg-primary text-white">
+    <div class="container py-5">
+      <h1 class="display-4">Corona Virus 19</h1>
+      <hr class="my-4" />
+      <p class="lead">Informasi seputar corona virus di Seluruh Dunia</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row mt-4">
+      <div class="col-md-3 col-6">
+        <div class="card p-2 rounded-0 border-0 bg-primary text-white">
+          <p class="total_konfirmasi h2"></p>
+          <p class="h4">TERKONFIRMASI</p>
+          <p class="h4 new_konfirmasi"></p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="card p-2 rounded-0 border-0 bg-info text-white">
+          <p class="total_sembuh h2"></p>
+          <p class="h4">SEMBUH</p>
+          <p class="h4 persen_sembuh"></p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="card p-2 rounded-0 border-0 bg-warning text-white">
+          <p class="total_dirawat h2"></p>
+          <p class="h4">DIRAWAT</p>
+          <p class="h4 persen_dirawat"></p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="card p-2 rounded-0 border-0 bg-danger text-white">
+          <p class="total_meninggal h2"></p>
+          <p class="h4">MENINGGAL</p>
+          <p class="h4 persen_meninggal"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container d-flex">
+    <div class="row">
+      <div class="col-12">
+        <div id="regions_div" class="bg-light"></div>
+      </div>
+      <div class="col-md-6 col-12">
+        <div id="chart_div" class="bg-light"></div>
+      </div>
+      <div class="col-md-6 col-12">
+        <div id="indovsglobal" class="bg-light"></div>
+      </div>
+    </div>
+
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
+    integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <!--Load the AJAX API-->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {
+      packages: ['corechart', 'geochart'],
+      // Note: you will need to get a mapsApiKey for your project.
+      // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+      'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
+    });
+
+    function drawRegionsMap(allData) {
+      let database = [
+        ['Country', 'Jumlah Kasus'],
+      ]
+
+      allData.forEach(e => {
+        database.push([e.CountryCode, e.TotalConfirmed])
+      });
+
+      let data = google.visualization.arrayToDataTable(database);
+
+      let options = {
+        backgroundColor: '#f8f9fa',
+        colorAxis: { colors: ['#ffffff', '#DFFF00', '#FFBF00', '#e31b23', '#C70039'] },
+
+      };
+
+      let chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+      chart.draw(data, options);
+    }
+
+    // Mengisi data dan menampilkan chart global vs indonesia
+    // sesuai dengan data yang diterima
+    function indovsglobal(global, indo) {
+      // Create the data table.
+      console.log(global, indo);
+      let data = new google.visualization.DataTable();
+      data.addColumn('string', 'Tipe Kasus');
+      data.addColumn('number', 'jumlah');
+      data.addRows([
+        ['Dunia', global.TotalConfirmed],
+        ['Indonesia', indo.TotalConfirmed],
+      ]);
+
+      // Set chart options
+      let options = {
+        title: 'Perbandingan Kasus Indonesia di Dunia',
+        width: '700',
+        height: '600',
+        backgroundColor: '#f8f9fa',
+      };
+
+      let chart = new google.visualization.BarChart(
+        document.getElementById('indovsglobal'),
+      );
+
+      chart.draw(data, options);
+    }
+
+    // Mengisi data dan menampilkan chart covid di dunia
+    // sesuai dengan data yang diterima
+    function global(global) {
+      // Create the data table.
+      let data = new google.visualization.DataTable();
+      data.addColumn('string', 'Tipe Kasus');
+      data.addColumn('number', 'Jumlah');
+      data.addRows([
+        ['Sembuh', global.TotalRecovered],
+        ['Meninggal', global.TotalDeaths],
+        [
+          'Kasus Aktif',
+          global.TotalConfirmed - global.TotalRecovered - global.TotalDeaths,
+        ],
+      ]);
+
+      // Set chart options
+      let options = {
+        title: 'Data Kasus Corona Virus di Dunia',
+        width: '700',
+        height: '600',
+        backgroundColor: '#f8f9fa',
+      };
+
+      // Instantiate and draw our chart, passing in some options.
+      let chart = new google.visualization.PieChart(
+        document.getElementById('chart_div'),
+      );
+      chart.draw(data, options);
+    }
+
+    // Mengambil data dari API
+    function getData() {
+      axios
+        .get('https://api.covid19api.com/summary')
+        .then((res) => {
+          global(res.data.Global);
+          isiGlobal(res.data.Global);
+          let indo = res.data.Countries.find(e => e.Country === "Indonesia")
+          indovsglobal(res.data.Global, indo)
+          drawRegionsMap(res.data.Countries)
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
+    // Mengisi data ke class yang sudah di sediakan
+    let isiGlobal = (data) => {
+      $('.total_konfirmasi').html(data.TotalConfirmed)
+      $('.total_meninggal').html(data.TotalDeaths)
+      $('.total_sembuh').html(data.TotalRecovered)
+      $('.total_dirawat').html(data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths)
+      $('.new_konfirmasi').html(`+${data.NewConfirmed} Kasus`)
+      $('.persen_meninggal').html(`${(data.TotalDeaths / data.TotalConfirmed * 100).toFixed(2)}%`)
+      $('.persen_sembuh').html(`${(data.TotalRecovered / data.TotalConfirmed * 100).toFixed(2)}%`)
+      $('.persen_dirawat').html(`${((data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths) / data.TotalConfirmed * 100).toFixed(2)}%`)
+    }
+
+    // Memanggil function getData() ketika window load
+    window.onload = () => {
+      getData()
+    }
+
+  </script>
+</body>
+
+</html>
