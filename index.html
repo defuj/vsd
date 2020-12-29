@@ -103,7 +103,7 @@
   </div>
 
   <footer class="main-footer">
-    <strong>Copyright &copy; 2020 <a href="http://adminlte.io">Dede Fuji Abdul</a>.</strong>
+    <strong>Copyright &copy; 2020 <a href="./">Dede Fuji Abdul</a>.</strong>
     <div class="float-right d-none d-sm-inline-block">
       <b>A2.1700029</b>
     </div>
@@ -130,7 +130,7 @@
             console.log(err);
         });
 
-        axios.get('http://api.kawalcorona.com/indonesia/', 
+        axios.get('https://api.kawalcorona.com/indonesia/', 
         {headers: {"x-dsi-restful":1}}).then((res) => {
             localData(res.data);
             console.log(res.data);
