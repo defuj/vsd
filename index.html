@@ -27,7 +27,7 @@
         <div class="row mb-2">
           <div class="col-sm-12">
             <h1>Corona Virus Indonesia</h1>
-            <h5>Informasi Seputar Corona Virus di Indonesia</h5>
+            <h5>Infografik Corona Virus di Indonesia</h5>
           </div>
         </div>
       </div>
@@ -37,7 +37,6 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-3 col-6">
-            <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
                 <h3 class="jml_konfirmasi">0</h3>
@@ -50,9 +49,7 @@
               <a href="https://covid19.go.id" target="_blank" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->
           <div class="col-lg-3 col-6">
-            <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
                 <h3 class="jml_sembuh">0</h3>
@@ -65,9 +62,7 @@
               <a href="https://covid19.go.id" target="_blank" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->
           <div class="col-lg-3 col-6">
-            <!-- small box -->
             <div class="small-box bg-warning">
               <div class="inner">
                 <h3 class="jml_dirawat">0</h3>
@@ -80,9 +75,7 @@
               <a href="https://covid19.go.id" target="_blank" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->
           <div class="col-lg-3 col-6">
-            <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
                 <h3 class="jml_meninggal">0</h3>
@@ -95,7 +88,18 @@
               <a href="https://covid19.go.id" target="_blank" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->
+        </div>
+
+        <div class="row" id="charts">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-body">
+                <div id="indo" class="d-flex justify-content-center"></div>
+              </div>
+            </div>
+          </div>
+
+          
         </div>
 
       </div>
@@ -119,21 +123,85 @@
 <script src="https://adminlte.io/themes/v3/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 <script src="https://adminlte.io/themes/v3/dist/js/adminlte.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
+    google.charts.load('current', {
+      packages: ['corechart'],
+    });
+
+    function setCharts(info,target){
+      let data = new google.visualization.DataTable();
+      data.addColumn('string', 'Tipe Kasus');
+      data.addColumn('number', 'Jumlah');
+      data.addRows([
+        ['Sembuh', info.kasusSemb],
+        ['Meninggal', info.kasusMeni],
+        ['Kasus Aktif',info.kasusPosi],
+      ]);
+
+      let options = {
+        title:'Persentase Covid-19 '+info.provinsi,
+        pieHole: 0.3,
+        width: '500',
+        height: '350',
+        backgroundColor: '#FFFFFF',
+        slices: {
+            0: { color: '#28a745' },
+            1: { color: '#dc3545' },
+            2: { color: '#ffc107' }
+          }
+      };
+
+      let chart = new google.visualization.PieChart(document.getElementById(target),);
+      chart.draw(data, options);
+    }
+
+    function chartIndo(global) {
+      let data = new google.visualization.DataTable();
+      data.addColumn('string', 'Tipe Kasus');
+      data.addColumn('number', 'Jumlah');
+      data.addRows([
+        ['Sembuh', global.TotalRecovered],
+        ['Meninggal', global.TotalDeaths],
+        ['Kasus Aktif',global.TotalConfirmed - global.TotalRecovered - global.TotalDeaths],
+      ]);
+
+      let options = {
+        title:'Persentase Covid-19 di Indonesia',
+        pieHole: 0.3,
+        width: '1000',
+        height: '400',
+        backgroundColor: '#FFFFFF',
+        slices: {
+            0: { color: '#28a745' },
+            1: { color: '#dc3545' },
+            2: { color: '#ffc107' }
+          }
+      };
+
+      let chart = new google.visualization.PieChart(document.getElementById('indo'),);
+      chart.draw(data, options);
+    }
+
     // Mengambil data dari API
     function getData() {
         axios.get('https://api.covid19api.com/summary').then((res) => {
+            chartIndo(res.data.Countries.find(e => e.Country === "Indonesia"));
             indoData(res.data.Countries.find(e => e.Country === "Indonesia"));
         })
         .catch((err) => {
             console.log(err);
         });
 
-        axios.get('https://api.kawalcorona.com/indonesia/', 
-        {headers: {"x-dsi-restful":1}}).then((res) => {
-            localData(res.data);
-            //console.log(res.data);
+        axios.get('https://indonesia-covid-19.mathdro.id/api/provinsi').then((res) => {
+            for (let index = 0; index < res.data.data.length; index++) {
+              const data = res.data.data[index];
+              if(data.kodeProvi != 0){
+                $('#charts').append('<div class="col-lg-6"><div class="card"><div class="card-body" style="padding: 0px;"><div id="prov-'+index+'" class="d-flex justify-content-center"></div></div></div></div>');
+                setCharts(data,'prov-'+index);
+              }
+            }
         })
         .catch((err) => {
             console.log(err);
@@ -153,13 +221,10 @@
         $('.jml_meninggal').html(data.TotalDeaths)
         $('.jml_sembuh').html(data.TotalRecovered)
         $('.jml_dirawat').html(data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths)
-        //$('.new_konfirmasi').html(`+${data.NewConfirmed} Kasus`)
-        //$('.persen_meninggal').html(`${(data.TotalDeaths / data.TotalConfirmed * 100).toFixed(2)}%`)
-        //$('.persen_sembuh').html(`${(data.TotalRecovered / data.TotalConfirmed * 100).toFixed(2)}%`)
-        //$('.persen_dirawat').html(`${((data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths) / data.TotalConfirmed * 100).toFixed(2)}%`)
     }
 
-    // Memanggil function getData() ketika window load
+    
+
     window.onload = () => {
       getData();
     }
