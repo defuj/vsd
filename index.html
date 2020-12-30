@@ -91,10 +91,18 @@
         </div>
 
         <div class="row" id="charts">
-          <div class="col-lg-12">
+          <div class="col-lg-6">
             <div class="card">
               <div class="card-body">
                 <div id="indo" class="d-flex justify-content-center"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <div id="indo2" class="d-flex justify-content-center"></div>
               </div>
             </div>
           </div>
@@ -127,8 +135,40 @@
 
 <script type="text/javascript">
     google.charts.load('current', {
-      packages: ['corechart'],
+      packages: ['corechart','line'],
     });
+
+    function setMonthlyData(dat) {
+      let data = new google.visualization.DataTable();
+      data.addColumn('number', 'x');
+      data.addColumn('number', 'Sembuh');
+      data.addColumn('number', 'Meninggal');
+      data.addColumn('number', 'Dirawat');
+
+      
+      for (let i = 0; i < dat.length; i++) {
+        const result = dat[i];
+        data.addRows([
+          [i, result.Recovered, result.Deaths, result.Active],
+        ]);
+      }
+
+      var options = {
+        height: '350',
+        hAxis: {
+          title: 'Bulan Desember'
+        },
+        vAxis: {
+          title: 'Jumlah Data'
+        },
+        series: {
+          1: {curveType: 'function'}
+        }
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('indo2'));
+      chart.draw(data, options);
+    }
 
     function setCharts(info,target){
       let data = new google.visualization.DataTable();
@@ -162,16 +202,16 @@
       data.addColumn('string', 'Tipe Kasus');
       data.addColumn('number', 'Jumlah');
       data.addRows([
-        ['Sembuh', global.TotalRecovered],
-        ['Meninggal', global.TotalDeaths],
-        ['Kasus Aktif',global.TotalConfirmed - global.TotalRecovered - global.TotalDeaths],
+        ['Sembuh', global.sembuh],
+        ['Meninggal', global.meninggal],
+        ['Kasus Aktif',global.jumlahKasus],
       ]);
 
       let options = {
         title:'Persentase Covid-19 di Indonesia',
         pieHole: 0.3,
-        width: '1000',
-        height: '400',
+        width: '500',
+        height: '350',
         backgroundColor: '#FFFFFF',
         slices: {
             0: { color: '#28a745' },
@@ -186,9 +226,11 @@
 
     // Mengambil data dari API
     function getData() {
-        axios.get('https://api.covid19api.com/summary').then((res) => {
-            chartIndo(res.data.Countries.find(e => e.Country === "Indonesia"));
-            indoData(res.data.Countries.find(e => e.Country === "Indonesia"));
+        axios.get('https://indonesia-covid-19.mathdro.id/api').then((res) => {
+            //chartIndo(res.data.Countries.find(e => e.Country === "Indonesia"));
+            //indoData(res.data.Countries.find(e => e.Country === "Indonesia"));
+            chartIndo(res.data);
+            indoData(res.data);
         })
         .catch((err) => {
             console.log(err);
@@ -206,6 +248,14 @@
         .catch((err) => {
             console.log(err);
         });
+
+        axios.get('https://api.covid19api.com/country/indonesia').then(res => {
+          console.log(res.data.filter(function (el) { return el.Date.includes('2020-12')}));
+          setMonthlyData(res.data.filter(function (el) { return el.Date.includes('2020-12')}));
+        })
+        .catch((err) =>{
+          console.log(err);
+        });
     }
 
     let localData = (data) =>{
@@ -217,10 +267,10 @@
 
     // Mengisi data ke class yang sudah di sediakan
     let indoData = (data) => {
-        $('.jml_konfirmasi').html(data.TotalConfirmed)
-        $('.jml_meninggal').html(data.TotalDeaths)
-        $('.jml_sembuh').html(data.TotalRecovered)
-        $('.jml_dirawat').html(data.TotalConfirmed - data.TotalRecovered - data.TotalDeaths)
+        $('.jml_konfirmasi').html(data.jumlahKasus)
+        $('.jml_meninggal').html(data.meninggal)
+        $('.jml_sembuh').html(data.sembuh)
+        $('.jml_dirawat').html(data.perawatan)
     }
 
     
